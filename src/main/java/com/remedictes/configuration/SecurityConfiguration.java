@@ -11,12 +11,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+/**
+ * Configures spring security, doing the following:
+ * <li>Bypass security checks for static resources,</li>
+ * <li>Restrict access to the application, allowing only logged in users,</li>
+ * <li>Set up the login form</li>
+ */
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String LOGIN_PROCESSING_URL = "/login";
-    private static final String LOGIN_FAILURE_URL = "/login";
+    private static final String LOGIN_FAILURE_URL = "/login?error";
     private static final String LOGIN_URL = "/login";
     private static final String LOGOUT_SUCCESS_URL = "/login";
 
@@ -25,25 +31,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-
+        // Not using Spring CSRF here to be able to use plain HTML for the login page
         http.csrf().disable()
 
-                // Register our CustomRequestCache that saves unauthorized access attempts, so
+                // Register our CustomRequestCache, that saves unauthorized access attempts, so
                 // the user is redirected after login.
-                .requestCache().requestCache(new CustomRequestCache()) //
+                .requestCache().requestCache(new CustomRequestCache())
 
                 // Restrict access to our application.
                 .and().authorizeRequests()
 
                 // Allow all flow internal requests.
-                .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll() //
+                .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
 
                 // Allow all requests by logged in users.
-                .anyRequest().authenticated() //
+                .anyRequest().authenticated()
 
                 // Configure the login page.
-                .and().formLogin().loginPage(LOGIN_URL).permitAll() //
-                .loginProcessingUrl(LOGIN_PROCESSING_URL) //
+                .and().formLogin().loginPage(LOGIN_URL).permitAll().loginProcessingUrl(LOGIN_PROCESSING_URL)
                 .failureUrl(LOGIN_FAILURE_URL)
 
                 // Configure logout
@@ -55,13 +60,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public UserDetailsService userDetailsService() {
         UserDetails user =
                 User.withUsername("user")
-                        .password("111111")
+                        .password("{noop}password")
                         .roles("USER")
                         .build();
 
         return new InMemoryUserDetailsManager(user);
     }
-
 
     /**
      * Allows access to static resources, bypassing Spring security.
@@ -69,7 +73,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers(
-                // Vaadin Flow static resources //
+                // Vaadin Flow static resources
                 "/VAADIN/**",
 
                 // the standard favicon URI
@@ -78,18 +82,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // the robots exclusion standard
                 "/robots.txt",
 
-                // web application manifest //
+                // web application manifest
                 "/manifest.webmanifest",
                 "/sw.js",
                 "/offline-page.html",
 
-                // (development mode) static resources //
+                // icons and images
+                "/icons/**",
+                "/images/**",
+
+                // (development mode) static resources
                 "/frontend/**",
 
-                // (development mode) webjars //
+                // (development mode) webjars
                 "/webjars/**",
 
-                // (production mode) static resources //
+                // (development mode) H2 debugging console
+                "/h2-console/**",
+
+                // (production mode) static resources
                 "/frontend-es5/**", "/frontend-es6/**");
     }
 }

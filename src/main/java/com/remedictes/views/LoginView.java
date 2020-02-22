@@ -1,24 +1,36 @@
 package com.remedictes.views;
 
-import com.vaadin.flow.component.AttachEvent;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.templatemodel.TemplateModel;
+
+import java.util.Collections;
 
 @Tag("sa-login-view")
 @Route(value = LoginView.ROUTE)
 @PageTitle("Login")
-public class LoginView extends Component {
+public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     public static final String ROUTE = "login";
 
-    public interface Model extends TemplateModel {
-        void setError(boolean error);
+    private LoginForm login = new LoginForm();
+
+    public LoginView(){
+        login.setAction("login");
+        getElement().appendChild(login.getElement());
     }
 
     @Override
-    protected void onAttach(AttachEvent attachEvent) {
-        getElement().setText("Do you wonder why you do not see any login UI? Well, this is the master branch only containing the security setup. For different UI implementations check the other branches :)");
+    public void beforeEnter(BeforeEnterEvent event) {
+        if(!event.getLocation()
+                .getQueryParameters()
+                .getParameters()
+                .getOrDefault("error", Collections.emptyList())
+                .isEmpty()) {
+            login.setError(true);
+        }
     }
 }
