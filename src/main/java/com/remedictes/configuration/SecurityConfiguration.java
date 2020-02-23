@@ -1,7 +1,9 @@
 package com.remedictes.configuration;
 
+import com.remedictes.views.LoginFormView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,6 +28,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private static final String LOGIN_URL = "/login";
     private static final String LOGOUT_SUCCESS_URL = "/login";
 
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception { //
+        return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public CustomRequestCache requestCache() { //
+        return new CustomRequestCache();
+    }
+
     /**
      * Require login to access internal pages and configure login form.
      */
@@ -48,8 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
 
                 // Configure the login page.
-                .and().formLogin().loginPage(LOGIN_URL).permitAll().loginProcessingUrl(LOGIN_PROCESSING_URL)
-                .failureUrl(LOGIN_FAILURE_URL)
+                .and().formLogin().loginPage("/" + LoginFormView.ROUTE).permitAll() //
 
                 // Configure logout
                 .and().logout().logoutSuccessUrl(LOGOUT_SUCCESS_URL);
@@ -58,13 +70,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
-        UserDetails user =
+        // admin user with all privileges
+        UserDetails adminUser =
                 User.withUsername("user")
-                        .password("{noop}password")
-                        .roles("USER")
+                        .password("{noop}111111")
+                        .roles("User", "Admin")
                         .build();
 
-        return new InMemoryUserDetailsManager(user);
+        return new InMemoryUserDetailsManager(adminUser);
     }
 
     /**
