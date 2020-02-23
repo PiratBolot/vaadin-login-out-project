@@ -1,9 +1,6 @@
-# Project Base for Vaadin and Spring Boot
-
-This project can be used as a starting point to create your own Vaadin application with Spring Boot.
-It contains all the necessary configuration and some placeholder files to get you started.
-
-The best way to create your own project based on this starter is [start.vaadin.com](https://start.vaadin.com/) - you can get only the necessary parts and choose the package naming you want to use.
+# Vaadin Login/out Project
+A trial web application on Vaadin, which implements the authorization and logout function of a certain user.
+Username and password for `user`, `111111`
 
 ## Running the Application
 
@@ -15,7 +12,6 @@ Open http://localhost:8080/ in your browser.
 
 If you want to run the application locally in the production mode, run `mvn spring-boot:run -Pproduction`.
 
-To run Integration Tests, execute `mvn verify -Pintegration-tests`.
 
 ## More Information
 
