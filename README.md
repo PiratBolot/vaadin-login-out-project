@@ -1,6 +1,6 @@
 # Vaadin Login/out Project
 A trial web application on Vaadin, which implements the authorization and logout function of a certain user.
-Username and password for `user`, `111111`
+Username and password: `user`, `111111`
 
 ## Running the Application
 
